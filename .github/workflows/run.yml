@@ -1,0 +1,60 @@
+# AiVR runner. Runs private automation code; all output stays off the public log.
+name: run
+on:
+  repository_dispatch:
+    types: [phone, mail-sum]
+  workflow_dispatch:
+  schedule:
+    - cron: '20 3-21 * * *'
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: prepare
+        env:
+          REPOS_TOKEN: ${{ secrets.REPOS_TOKEN }}
+        run: |
+          git config --global user.name "Claude (phone)"
+          git config --global user.email "noreply@anthropic.com"
+          git config --global url."https://x-access-token:${REPOS_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git clone -q --depth 50 https://github.com/yaezra05490-debug/shiabuda-phone work > /dev/null 2>&1
+          npm install -g --silent @anthropic-ai/claude-code@2.1.318 > /dev/null 2>&1
+          echo ready
+      - name: run
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GMAIL_RELAY_URL: ${{ secrets.GMAIL_RELAY_URL }}
+          GMAIL_RELAY_KEY: ${{ secrets.GMAIL_RELAY_KEY }}
+          GMAIL_RELAY_URL_AIVR: ${{ secrets.GMAIL_RELAY_URL_AIVR }}
+          GMAIL_RELAY_KEY_AIVR: ${{ secrets.GMAIL_RELAY_KEY_AIVR }}
+          GMAIL_RELAY_URL_ETGAR: ${{ secrets.GMAIL_RELAY_URL_ETGAR }}
+          GMAIL_RELAY_KEY_ETGAR: ${{ secrets.GMAIL_RELAY_KEY_ETGAR }}
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          TIMLUL_PIN: ${{ secrets.TIMLUL_PIN }}
+          NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
+          YEMOT_KEY_ATGAR: ${{ secrets.YEMOT_KEY_ATGAR }}
+          YEMOT_KEY_SHIABUDA: ${{ secrets.YEMOT_KEY_SHIABUDA }}
+          YEMOT_KEY_SAVTA: ${{ secrets.YEMOT_KEY_SAVTA }}
+          YEMOT_KEY_SHMUEL: ${{ secrets.YEMOT_KEY_SHMUEL }}
+          YEMOT_KEY_SHIRI: ${{ secrets.YEMOT_KEY_SHIRI }}
+          YEMOT_KEY_BERKOVITZ: ${{ secrets.YEMOT_KEY_BERKOVITZ }}
+          YEMOT_KEY_MECHABDO: ${{ secrets.YEMOT_KEY_MECHABDO }}
+          YEMOT_KEY_CENTRAL: ${{ secrets.YEMOT_KEY_CENTRAL }}
+          YEMOT_CLIENT_KEYS: ${{ secrets.YEMOT_CLIENT_KEYS }}
+          BANK_HAPOALIM: ${{ secrets.BANK_HAPOALIM }}
+          BANK_DISCOUNT: ${{ secrets.BANK_DISCOUNT }}
+          MITM_USER: ${{ secrets.MITM_USER }}
+          MITM_PASSWORD: ${{ secrets.MITM_PASSWORD }}
+          GH_TOKEN: ${{ secrets.REPOS_TOKEN }}
+        run: |
+          cd work
+          code=0
+          node .github/runner-entry.js > /tmp/out.log 2>&1 || code=$?
+          echo "finished: $code"
+          exit $code
