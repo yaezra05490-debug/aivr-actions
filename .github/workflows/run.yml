@@ -2,7 +2,7 @@
 name: run
 on:
   repository_dispatch:
-    types: [phone, mail-sum]
+    types: [phone, mail-sum, work]
   workflow_dispatch:
   schedule:
     - cron: '20 3-21 * * *'
@@ -10,6 +10,7 @@ permissions:
   contents: read
 jobs:
   run:
+    if: github.event.action != 'work'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -56,5 +57,39 @@ jobs:
           cd work
           code=0
           node .github/runner-entry.js > /tmp/out.log 2>&1 || code=$?
+          echo "finished: $code"
+          exit $code
+  work:
+    if: github.event.action == 'work'
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    concurrency:
+      group: work
+      cancel-in-progress: false
+    steps:
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: prepare
+        env:
+          REPOS_TOKEN: ${{ secrets.REPOS_TOKEN }}
+        run: |
+          git config --global url."https://x-access-token:${REPOS_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git clone -q --depth 5 https://github.com/yaezra05490-debug/content-users work > /dev/null 2>&1
+          npm install -g --silent @anthropic-ai/claude-code@2.1.318 > /dev/null 2>&1
+          sudo apt-get install -y -qq ffmpeg > /dev/null 2>&1
+          pip install -q yt-dlp > /dev/null 2>&1
+          echo ready
+      - name: run
+        env:
+          SERVER_URL: ${{ secrets.SERVER_URL }}
+          WORK_SECRET: ${{ secrets.WORK_SECRET }}
+          YEMOT_KEY: ${{ secrets.YEMOT_KEY_ATGAR }}
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          MODEL: haiku
+        run: |
+          cd work
+          code=0
+          node worker/work.js > /tmp/out.log 2>&1 || code=$?
           echo "finished: $code"
           exit $code
