@@ -53,6 +53,9 @@ jobs:
           MITM_USER: ${{ secrets.MITM_USER }}
           MITM_PASSWORD: ${{ secrets.MITM_PASSWORD }}
           GH_TOKEN: ${{ secrets.REPOS_TOKEN }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: il-central-1
         run: |
           cd work
           code=0
