@@ -36,6 +36,8 @@ jobs:
           GMAIL_RELAY_KEY_AIVR: ${{ secrets.GMAIL_RELAY_KEY_AIVR }}
           GMAIL_RELAY_URL_ETGAR: ${{ secrets.GMAIL_RELAY_URL_ETGAR }}
           GMAIL_RELAY_KEY_ETGAR: ${{ secrets.GMAIL_RELAY_KEY_ETGAR }}
+          GMAIL_RELAY_URL_SHIABUDA: ${{ secrets.GMAIL_RELAY_URL_SHIABUDA }}
+          GMAIL_RELAY_KEY_SHIABUDA: ${{ secrets.GMAIL_RELAY_KEY_SHIABUDA }}
           GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
           TIMLUL_PIN: ${{ secrets.TIMLUL_PIN }}
           NETLIFY_TOKEN: ${{ secrets.NETLIFY_TOKEN }}
